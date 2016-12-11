@@ -2,10 +2,11 @@
   remote_user: root
   tasks:
     - name: Download gpg key of repository
-      shell: wget https://www.dotdeb.org/dotdeb.gpg
-      # when: dotdeb.gpg.exists == False
+      get_url:
+        url: https://www.dotdeb.org/dotdeb.gpg
+        dest: /tmp/dotdeb.gpg
     - name: Set gpg key
-      shell: apt-key add dotdeb.gpg
+      shell: apt-key add /tmp/dotdeb.gpg
       become: true
       become_method: su
     - name: Add repository needed for php7
@@ -18,7 +19,14 @@
         dpkg_options: 'force-confold,force-confdef'
       become: true
       become_method: su
-    - name: Install php7 and fpm module
-      apt: name=php7.0-fpm
+    - name: Install php7 and modules
+      apt: name={{item}} state=present
+      with_items:
+        - nginx
+        - php7.0-fpm
+        - php7.0-mysql
+        - php7.0-curl
+        - php7.0-redis
+        - php7.0-gd
       become: true
       become_method: su
