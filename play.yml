@@ -1,0 +1,24 @@
+- hosts: nodes
+  remote_user: root
+  tasks:
+    - name: Download gpg key of repository
+      shell: wget https://www.dotdeb.org/dotdeb.gpg
+      # when: dotdeb.gpg.exists == False
+    - name: Set gpg key
+      shell: apt-key add dotdeb.gpg
+      become: true
+      become_method: su
+    - name: Add repository needed for php7
+      shell: echo "deb http://packages.dotdeb.org jessie all\ndeb-src http://packages.dotdeb.org jessie all" > /etc/apt/sources.list.d/dotdeb.list
+      become: true
+      become_method: su
+    - name: Update packages cache
+      apt:
+        update_cache: yes
+        dpkg_options: 'force-confold,force-confdef'
+      become: true
+      become_method: su
+    - name: Install php7 and fpm module
+      apt: name=php7.0-fpm
+      become: true
+      become_method: su
